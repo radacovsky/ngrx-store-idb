@@ -1,0 +1,25 @@
+{
+  "name": "ngrx-store-idb",
+  "version": "0.0.9",
+  "license": "MIT",
+  "author": {
+    "name": "Stefan Radacovsky",
+    "url": "https://github.com/radacovsky/ngrx-store-idb"
+  },
+  "readme": "https://github.com/radacovsky/ngrx-store-idb#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/radacovsky/ngrx-store-idb.git"
+  },
+  "peerDependencies": {
+    "@angular/common": "^10.1.6",
+    "@angular/core": "^10.1.6",
+    "@ngrx/effects": "^10.0.1",
+    "@ngrx/store": "^10.0.1",
+    "idb-keyval": "^3.2.0"
+  },
+  "dependencies": {
+    "deepmerge": "^4.2.2",
+    "tslib": "^2.0.0"
+  }
+}
