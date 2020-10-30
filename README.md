@@ -75,9 +75,22 @@ Default value is null (i.e. not used). Can not be used together with `unmarshall
 
 * `debugInfo: boolean`: Set to true to see debug messages in console. It can help you to understand when and how is state synced. Default is `true`.
 
-* `idb.dbName`: IndexedDB database name. Use it is your application already uses IndexedDB and you want to keep everything together. Default value is `NgrxStoreIdb`.
+* `idb.dbName`: IndexedDB database name. Use it if your application already uses IndexedDB and you want to keep everything together. Default value is `NgrxStoreIdb`.
 
-* `idb.storeName`: IndexedDb store name. Use it is your application already uses IndexedDB and you want to keep everything together. Default value is `Store`.
+* `idb.storeName`: IndexedDb store name. Use it if your application already uses IndexedDB and you want to keep everything together. Default value is `Store`.
+
+### `NgrxStoreIdbService`
+
+This service broadcasts information every time ngrx-store-idb syncs store to IndexedDB. 
+
+### `onSync(): Observable<NgrxStoreIdbSyncEvent>`
+
+Subscribe to observable returned by this method to receive `NgrxStoreIdbSyncEvent` events every time when store is synced.
+These are properties of `NgrxStoreIdbSyncEvent`:
+
+* `success: boolean`: indicates if synchronisation was successful. Falsy value means that data wasn't written.
+
+* `action: Action`: holds the action that triggered the synchronisation. You could use this to wait for synchronisation after some user action e.g. wait until store is synchronised after logout to close the page.
 
 ### Usage
 
