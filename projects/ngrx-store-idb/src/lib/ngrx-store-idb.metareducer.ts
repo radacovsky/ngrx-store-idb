@@ -1,9 +1,8 @@
-import { ActionReducer, INIT, MetaReducer } from '@ngrx/store';
+import { ActionReducer, INIT } from '@ngrx/store';
 import * as deepmerge from 'deepmerge';
 import { set, Store } from 'idb-keyval';
-import { ErrorCode } from './error-codes';
-import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
+import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 import { NgrxStoreIdbService } from './ngrx-store-idb.service';
 
 /**
@@ -21,8 +20,6 @@ export const defaultUnmarshaller = (state: any, rehydratedState: any) => {
   return deepmerge(state, rehydratedState, options);
 };
 
-export const defaultErrorHandler = (err) => console.error(err);
-
 export const DEFAULT_OPTS: NgrxStoreIdbOptions = {
   rehydrate: true,
   saveOnChange: true,
@@ -30,7 +27,6 @@ export const DEFAULT_OPTS: NgrxStoreIdbOptions = {
   keys: null,
   unmarshaller: defaultUnmarshaller,
   marshaller: defaultMarshaller,
-  onError: defaultErrorHandler,
   debugInfo: true,
   idb: {
     dbName: 'NgrxStoreIdb',
@@ -181,7 +177,6 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
         console.error('NgrxStoreIdb: Error storing state to IndexedDB', err, action);
       }
       service.broadcastSyncEvent(action, false);
-      opts.onError(ErrorCode.SAVE_TO_IDB_FAILED, err);
     });
 };
 
@@ -253,10 +248,9 @@ export const optionsFactory = (options: Partial<NgrxStoreIdbOptions>) => {
   const opts = deepmerge(DEFAULT_OPTS, options);
   if (opts.debugInfo) {
     console.info('NgrxStoreIdbModule: Using the following options', {
-    ...opts,
-    marshaller: opts.marshaller === defaultMarshaller ? 'default marshaller' : 'custom marshaller',
-    unmarshaller: opts.unmarshaller === defaultUnmarshaller ? 'default unmarshaller' : 'custom unmarshaller',
-    onError: opts.onError === defaultErrorHandler ? 'default error handler' : 'custom error handler',
+      ...opts,
+      marshaller: opts.marshaller === defaultMarshaller ? 'default marshaller' : 'custom marshaller',
+      unmarshaller: opts.unmarshaller === defaultUnmarshaller ? 'default unmarshaller' : 'custom unmarshaller',
     });
   }
   return opts;

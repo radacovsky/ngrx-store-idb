@@ -55,22 +55,22 @@ export interface NgrxStoreIdbOptions {
    */
   keys: Keys;
   /**
-   * If defined then synchronisation of store -> IDB will be done only when the function returns true
+   * If defined then synchronisation of store -> IDB will be done only when the function returns true.
+   * You can use it e.g. to do syncing only on certain action.
    */
   syncCondition: ((state: any, action: TypedAction<any>) => boolean) | null;
   /**
    * Method used to merge data loaded from IDB with Store state during rehydratation.
-   * When null then default will be full deep merge.
+   * When null then default will be full deep merge. Must be used together with marshaller.
+   * Can not be used together with keys.
    */
   unmarshaller: (state: any, rehydratedState: any) => any;
   /**
-   * Method used to marshall store state into object to be written into IDB
+   * Method used to marshall store state into object to be written into IDB.
+   * Must be used together with unmarshaller.
+   * Can not be used together with keys.
    */
   marshaller: (state: any) => any;
-  /**
-   * Error handler that receives all errors
-   */
-  onError: (...error: any) => void;
   /**
    * Print debug info if true
    */
