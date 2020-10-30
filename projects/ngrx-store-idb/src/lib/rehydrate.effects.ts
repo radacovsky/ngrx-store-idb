@@ -4,6 +4,7 @@ import { Action, UPDATE } from '@ngrx/store';
 import { get, Store } from 'idb-keyval';
 import { from, of } from 'rxjs';
 import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
+import { ErrorCode } from './error-codes';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './rehydrate.actions';
 
@@ -37,7 +38,7 @@ export class RehydrateEffects implements OnInitEffects {
             if (this.options.debugInfo) {
               console.error('NgrxStoreIdb: Error reading state from IndexedDB', err);
             }
-            this.options.onError('Error reading state from IndexedDB', err);
+            this.options.onError(ErrorCode.READ_FROM_IDB_FAILED, err);
             return of(rehydrateErrorAction());
           }),
         );

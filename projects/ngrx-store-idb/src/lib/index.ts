@@ -7,3 +7,5 @@ export {
   NgrxStoreIdbOptions
 } from './ngrx-store-idb.options';
 export { RehydrateActions };
+
+export * from './error-codes';

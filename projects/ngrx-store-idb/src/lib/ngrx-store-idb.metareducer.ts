@@ -1,6 +1,7 @@
 import { ActionReducer, INIT, MetaReducer } from '@ngrx/store';
 import * as deepmerge from 'deepmerge';
 import { set, Store } from 'idb-keyval';
+import { ErrorCode } from './error-codes';
 import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './rehydrate.actions';
 
@@ -177,7 +178,7 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
       if (opts.debugInfo) {
         console.error('NgrxStoreIdb: Error storing state to IndexedDB', err, action);
       }
-      opts.onError(err);
+      opts.onError(ErrorCode.SAVE_TO_IDB_FAILED, err);
     });
 };
 
