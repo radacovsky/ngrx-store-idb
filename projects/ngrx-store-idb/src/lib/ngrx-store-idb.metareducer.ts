@@ -4,6 +4,7 @@ import { set, Store } from 'idb-keyval';
 import { ErrorCode } from './error-codes';
 import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
+import { NgrxStoreIdbService } from './ngrx-store-idb.service';
 
 /**
  * Default marshaller saves the whole store state
@@ -130,7 +131,7 @@ const statesAreEqual = (prev: any, next: any): boolean => {
 /**
  * Method used to save actual state into IndexedDB
  */
-const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Store) => {
+const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Store, service: NgrxStoreIdbService) => {
   if (opts.syncCondition) {
     try {
       if (opts.syncCondition(state, action) !== true) {
@@ -170,6 +171,7 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
   set(SAVED_STATE_KEY, marshalledState, idbStore)
     .then(() => {
       lastSavedState = marshalledState;
+      service.broadcastSyncEvent(action, true);
       if (opts.debugInfo) {
         console.debug('NgrxStoreIdb: Store state persisted to IndexedDB', marshalledState, action);
       }
@@ -178,6 +180,7 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
       if (opts.debugInfo) {
         console.error('NgrxStoreIdb: Error storing state to IndexedDB', err, action);
       }
+      service.broadcastSyncEvent(action, false);
       opts.onError(ErrorCode.SAVE_TO_IDB_FAILED, err);
     });
 };
@@ -186,7 +189,7 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
  * This is the main factory that creates our metareducer.
  */
 
-export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbStore: Store) => {
+export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbStore: Store, service: NgrxStoreIdbService) => {
   let rootStateRehydrated = false;
   return (reducer: ActionReducer<any>) => (state: any, action) => {
     let nextState: any;
@@ -229,7 +232,7 @@ export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbS
       if (options.debugInfo) {
         console.debug('NgrxStoreIdb: Persist state into IndexedDB', nextState, action);
       }
-      syncStateUpdate(nextState, action, options, idbStore);
+      syncStateUpdate(nextState, action, options, idbStore, service);
     }
 
     if (options.debugInfo) {

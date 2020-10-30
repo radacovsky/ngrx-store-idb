@@ -4,6 +4,7 @@ import { META_REDUCERS } from '@ngrx/store';
 import { idbStoreFactory, metaReducerFactoryWithOptions, optionsFactory } from './ngrx-store-idb.metareducer';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS } from './ngrx-store-idb.options';
 import { RehydrateEffects } from './ngrx-store-idb.effects';
+import { NgrxStoreIdbService } from './ngrx-store-idb.service';
 
 /**
  * Import this module in your AppModule using forRoot() method to
@@ -43,7 +44,7 @@ export class NgrxStoreIdbModule {
         // This installs NgrxStateIdb metareducer into use
         {
           provide: META_REDUCERS,
-          deps: [OPTIONS, IDB_STORE],
+          deps: [OPTIONS, IDB_STORE, NgrxStoreIdbService],
           useFactory: metaReducerFactoryWithOptions,
           multi: true,
         },

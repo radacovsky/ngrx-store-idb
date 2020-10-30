@@ -9,3 +9,5 @@ export {
 export { RehydrateActions };
 
 export * from './error-codes';
+
+export * from './ngrx-store-idb.service';
