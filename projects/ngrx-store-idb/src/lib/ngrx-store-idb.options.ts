@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { TypedAction } from '@ngrx/store/src/models';
+import { Action } from '@ngrx/store';
 import { Store } from 'idb-keyval';
 
 /**
@@ -58,7 +58,7 @@ export interface NgrxStoreIdbOptions {
    * If defined then synchronisation of store -> IDB will be done only when the function returns true.
    * You can use it e.g. to do syncing only on certain action.
    */
-  syncCondition: ((state: any, action: TypedAction<any>) => boolean) | null;
+  syncCondition: ((state: any, action: Action) => boolean) | null;
   /**
    * Method used to merge data loaded from IDB with Store state during rehydratation.
    * When null then default will be full deep merge. Must be used together with marshaller.

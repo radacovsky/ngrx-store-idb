@@ -67,7 +67,7 @@ Default value is null (i.e. not used). Can not be used together with `unmarshall
 
 * `saveOnChange: boolean`: If `true` then state will be synced to IndexedDB only if it differs from previous synced value. It uses object equality to compare previous and current state. See `\projects\ngrx-store-idb\src\lib\ngrx-store-idb.metareducer.ts#statesAreEqual()` for details of the comparison algorithm. Default value is `true`.
 
-* `syncCondition: (state: any, action: TypedAction<any>) => boolean`: Custom comparator used to determine if the current state should be synced to IndexedDB. You can use it to e.g. implement your own state comparison or trigger synchronisation only for certain actions. Default is `null`.
+* `syncCondition: (state: any, action: Action) => boolean`: Custom comparator used to determine if the current state should be synced to IndexedDB. You can use it to e.g. implement your own state comparison or trigger synchronisation only for certain actions. Default is `null`.
 
 * `unmarshaller: (state: any, rehydratedState: any) => any`: Defines the reducer to use to merge the rehydrated state from storage with the state from the ngrx store. Must be defined together with `marshaller`. Can not be used together with `keys`. If unspecified, defaults to performing a full [deepmerge](https://github.com/TehShrike/deepmerge).
 
