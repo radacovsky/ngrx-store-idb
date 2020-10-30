@@ -3,7 +3,7 @@ import * as deepmerge from 'deepmerge';
 import { set, Store } from 'idb-keyval';
 import { ErrorCode } from './error-codes';
 import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
-import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './rehydrate.actions';
+import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
 
 /**
  * Default marshaller saves the whole store state

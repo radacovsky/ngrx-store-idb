@@ -6,7 +6,7 @@ import { from, of } from 'rxjs';
 import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
 import { ErrorCode } from './error-codes';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY } from './ngrx-store-idb.options';
-import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './rehydrate.actions';
+import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
 
 @Injectable()
 export class RehydrateEffects implements OnInitEffects {

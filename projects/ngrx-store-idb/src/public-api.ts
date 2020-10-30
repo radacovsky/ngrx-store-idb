@@ -1,7 +1,7 @@
 /*
  * Public API Surface of ngrx-store-idb
  */
-import * as RehydrateActions from './lib/rehydrate.actions';
+import * as RehydrateActions from './lib/ngrx-store-idb.actions';
 
 export * from './lib/ngrx-store-idb.module';
 export {

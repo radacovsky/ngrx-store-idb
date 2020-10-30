@@ -1,4 +1,4 @@
-import * as RehydrateActions from './rehydrate.actions';
+import * as RehydrateActions from './ngrx-store-idb.actions';
 
 export * from './ngrx-store-idb.module';
 export {

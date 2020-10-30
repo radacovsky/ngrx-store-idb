@@ -3,7 +3,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { META_REDUCERS } from '@ngrx/store';
 import { idbStoreFactory, metaReducerFactoryWithOptions, optionsFactory } from './ngrx-store-idb.metareducer';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS } from './ngrx-store-idb.options';
-import { RehydrateEffects } from './rehydrate.effects';
+import { RehydrateEffects } from './ngrx-store-idb.effects';
 
 /**
  * Import this module in your AppModule using forRoot() method to
