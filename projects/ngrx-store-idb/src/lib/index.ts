@@ -8,6 +8,5 @@ export {
 } from './ngrx-store-idb.options';
 export { RehydrateActions };
 
-export * from './error-codes';
-
 export * from './ngrx-store-idb.service';
+
