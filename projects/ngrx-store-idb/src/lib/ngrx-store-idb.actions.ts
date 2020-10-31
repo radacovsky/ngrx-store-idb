@@ -1,7 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 
 export interface RehydrateActionPayload {
-  rootInit: boolean;
   rehydratedState: any;
 }
 

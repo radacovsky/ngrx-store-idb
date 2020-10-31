@@ -1,4 +1,4 @@
-import { ActionReducer, INIT } from '@ngrx/store';
+import { ActionReducer, INIT, UPDATE } from '@ngrx/store';
 import * as deepmerge from 'deepmerge';
 import { set, Store } from 'idb-keyval';
 import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
@@ -185,7 +185,7 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
  */
 
 export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbStore: Store, service: NgrxStoreIdbService) => {
-  let rootStateRehydrated = false;
+  let rehydratedState = null;
   return (reducer: ActionReducer<any>) => (state: any, action) => {
     let nextState: any;
 
@@ -193,13 +193,11 @@ export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbS
       console.group('NgrxStoreIdb: metareducer', state, action);
     }
 
-    // If we are processing rehydrateAction then merge current state with rehydrated state.
+    // If we are processing rehydrateAction then save rehydrated state (for later use).
     // There is no other reducer for this action.
     if (action.type === rehydrateAction.type) {
-      const payload = action as any as RehydrateActionPayload;
-      if (payload.rootInit) {
-        rootStateRehydrated = true;
-      }
+      const payload = action as RehydrateActionPayload;
+      rehydratedState = payload.rehydratedState || {};
       if (!payload.rehydratedState) {
         if (options.debugInfo) {
           console.debug('NgrxStoreIdb: Rehydrated state is empty - nothing to rehydrate.');
@@ -207,23 +205,41 @@ export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbS
         }
         return state;
       }
+    }
 
-      // Merge the store state with the rehydrated state using
-      // either a user-defined reducer or the default.
-      nextState = options.unmarshaller(state, payload.rehydratedState);
+    // If action is rehydrateAction (i.e. initial rehydratation)
+    // then merge the store state with the rehydrated state
+    if (action.type === rehydrateAction.type) {
+      nextState = options.unmarshaller(state, rehydratedState);
       if (options.debugInfo) {
         console.debug('NgrxStoreIdb: After rehydrating current state', nextState);
       }
     } else {
+      // Run normal reducer for this action
       nextState = reducer(state, action);
     }
 
+    // If action is UPDATE then rehydrate feature slices just created (when lazy module store loads)
+    if (action.type === UPDATE && action.features && rehydratedState) {
+      const rehydratedStateCopy = {};
+      for (const feature of action.features) {
+        if (rehydratedState[feature]) {
+          rehydratedStateCopy[feature] = rehydratedState[feature];
+        }
+      }
+      nextState = options.unmarshaller(nextState, rehydratedStateCopy);
+      if (options.debugInfo) {
+        console.debug('NgrxStoreIdb: After rehydrating current state', nextState);
+      }
+    }
+
     if (action.type !== INIT &&
+        action.type !== UPDATE &&
         action.type !== rehydrateInitAction.type &&
         action.type !== rehydrateAction.type &&
         action.type !== rehydrateErrorAction.type &&
         // If rehydrating is requested then don't sync until the saved state was loaded first
-        (rootStateRehydrated || !options.rehydrate)) {
+        (rehydratedState || !options.rehydrate)) {
       if (options.debugInfo) {
         console.debug('NgrxStoreIdb: Persist state into IndexedDB', nextState, action);
       }

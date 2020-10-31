@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
-import { Action, UPDATE } from '@ngrx/store';
+import { Action } from '@ngrx/store';
 import { get, Store } from 'idb-keyval';
 import { from, of } from 'rxjs';
-import { catchError, filter, map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 
@@ -32,31 +32,13 @@ export class RehydrateEffects implements OnInitEffects {
               console.debug('NgrxStoreIdb: Loaded state from IndexedDB:', value);
             }
           }),
-          map(value => rehydrateAction({ rootInit: true, rehydratedState: value })),
+          map(value => rehydrateAction({ rehydratedState: value })),
           catchError(err => {
             console.error('NgrxStoreIdb: Error reading state from IndexedDB', err);
             return of(rehydrateErrorAction());
           }),
         );
       }),
-    ),
-  );
-
-  /**
-   * UPDATE action is fired after each feature store initialisation.
-   * I need to rehydrate each feature store separatelly because they are wiped on initialisation.
-   * This might happen later in the application run for lazy modules.
-   */
-  rehydrateOnUpdate$ = createEffect(() =>
-   this.actions$.pipe(
-      ofType(UPDATE),
-      filter(() => this.options.rehydrate),
-      tap(action => {
-        if (this.options.debugInfo) {
-          console.debug('NgrxStoreIdb: Trigger rehydratation of a feature', action);
-        }
-      }),
-      map(action => rehydrateAction({ rootInit: false, rehydratedState: this.rehydratedState })),
     ),
   );
 
