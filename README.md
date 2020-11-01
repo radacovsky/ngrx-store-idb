@@ -14,6 +14,14 @@ IndexedDB uses [Structured Cloning Algorithm](https://developer.mozilla.org/en-U
 
 The data from storage is first read and merged into NGRX store immediatelly after NGRX store is initialized and NGRX effects are activated. There are additional merges executed when a new store feature is activated (e.g. for lazy loaded module).
 
+## Concurrency issues
+
+Since your users can open your web application in multiple tabs or windows it can present interesting challenges to design of your application. If there are multiple instances of your application open at the same time, they fight for access to IndexedDB and will overwrite the data. This might not be a problem if you design for it but usually it will be a problem.
+
+The library supports measures to handle concurrency issues. Each application (running this library) instance will try to acquire a so called lock over IndexedDB store and then will periodically update it to signal that it is still using it. If another instance opens, it will discover that it can not acquire the lock and will either stop syncing state to IndexedDB (but will still be able to rehydrate state) or will fail to load. See `concurrency` options.
+
+If your application needs to synchronise state across multiple tabs/windows then you are better off using [ngrx-store-localstorage](https://github.com/btroncone/ngrx-store-localstorage) library. Local storage supports event notification when the state changes allowing you to react to changes easily.
+
 ## Dependencies
 
 `ngrx-store-idb` depends on 
@@ -75,6 +83,14 @@ Default value is null (i.e. not used). Can not be used together with `unmarshall
 
 * `debugInfo: boolean`: Set to true to see debug messages in console. It can help you to understand when and how is state synced. Default is `true`.
 
+* `concurrency.allowed: boolean`: If false then library won't sync state to IndexedDB if it detects that another instance of Window/Tab is already syncing. Default is false.
+
+* `concurrency.refreshRate: number`: Time in ms how often library updates timestamp. This shouldn't be less than 1000ms. Default is 5000ms.
+
+* `concurrency.trackKey: string`: Name of IndexedDB key that holds the timestamp data. Default is 'ConcurrencyTimestamp'.
+
+* `concurrency.failInitialisationIfNoLock: boolean`: If the library detects that another instance of application already exists (e.g. running in different tab/window) and this is set to true then application won't start up. Default is false.
+
 * `idb.dbName`: IndexedDB database name. Use it if your application already uses IndexedDB and you want to keep everything together. Default value is `NgrxStoreIdb`.
 
 * `idb.storeName`: IndexedDb store name. Use it if your application already uses IndexedDB and you want to keep everything together. Default value is `Store`.
@@ -83,7 +99,7 @@ Default value is null (i.e. not used). Can not be used together with `unmarshall
 
 This service broadcasts information every time ngrx-store-idb syncs store to IndexedDB. 
 
-### `onSync(): Observable<NgrxStoreIdbSyncEvent>`
+#### `onSync(): Observable<NgrxStoreIdbSyncEvent>`
 
 Subscribe to observable returned by this method to receive `NgrxStoreIdbSyncEvent` events every time when store is synced.
 These are properties of `NgrxStoreIdbSyncEvent`:
@@ -91,6 +107,14 @@ These are properties of `NgrxStoreIdbSyncEvent`:
 * `success: boolean`: indicates if synchronisation was successful. Falsy value means that data wasn't written.
 
 * `action: Action`: holds the action that triggered the synchronisation. You could use this to wait for synchronisation after some user action e.g. wait until store is synchronised after logout to close the page.
+
+#### `onLockAcquired(): Observable<boolean>`
+
+Subscribe to observable returned by this method to receive information whether current instance was able to acquire lock. If the value returned is true then current instance of application is the one that will sync its state to IndexedDB. False means that some other instance is already running.
+
+#### `canConcurrentlySync(): boolean`
+
+Retuns true is current instance has lock or if the concurrency configuration allows concurrent instances to update IndexedDB (`concurrency.allowed = true`).
 
 ### Usage
 
