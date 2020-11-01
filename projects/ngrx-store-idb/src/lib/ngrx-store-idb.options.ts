@@ -75,5 +75,34 @@ export interface NgrxStoreIdbOptions {
    * Print debug info if true
    */
   debugInfo: boolean;
+  /**
+   * Configuration of concurrency options
+   */
+  concurrency: {
+    /**
+     * If false then library won't sync state to IndexedDB if it detects that another instance of
+     * Window/Tab is already syncing.
+     * Default is false.
+     */
+    allowed: boolean;
+    /**
+     * Time in ms how often library updates timestamp.
+     * This shouldn't be less than 1000ms.
+     * Default is 5000ms.
+     */
+    refreshRate?: number;
+    /**
+     * Name of key that holds the timestamp data.
+     * Default is 'ConcurrencyTimestamp'.
+     */
+    trackKey?: string;
+    /**
+     * If the library detects that another instance of application already exists
+     * (e.g. running in different tab/window) and this is set to true then application
+     * won't start up.
+     * Default if false.
+     */
+    failInitialisationIfNoLock: boolean;
+  }
 }
 

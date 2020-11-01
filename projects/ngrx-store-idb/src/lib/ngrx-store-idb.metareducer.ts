@@ -32,6 +32,12 @@ export const DEFAULT_OPTS: NgrxStoreIdbOptions = {
     dbName: 'NgrxStoreIdb',
     storeName: 'Store',
   },
+  concurrency: {
+    allowed: false,
+    refreshRate: 5000,
+    trackKey: 'ConcurrencyTimestamp',
+    failInitialisationIfNoLock: false,
+  },
 };
 
 
@@ -128,6 +134,13 @@ const statesAreEqual = (prev: any, next: any): boolean => {
  * Method used to save actual state into IndexedDB
  */
 const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Store, service: NgrxStoreIdbService) => {
+  if (!service.canConcurrentlySync()) {
+    if (opts.debugInfo) {
+      console.debug('NgrxStoreIdb: State will not be persisted. Application runs also in other tab/window.');
+    }
+    return;
+  }
+
   if (opts.syncCondition) {
     try {
       if (opts.syncCondition(state, action) !== true) {
@@ -241,7 +254,7 @@ export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbS
         // If rehydrating is requested then don't sync until the saved state was loaded first
         (rehydratedState || !options.rehydrate)) {
       if (options.debugInfo) {
-        console.debug('NgrxStoreIdb: Persist state into IndexedDB', nextState, action);
+        console.debug('NgrxStoreIdb: Try to persist state into IndexedDB', nextState, action);
       }
       syncStateUpdate(nextState, action, options, idbStore, service);
     }
@@ -275,3 +288,15 @@ export const optionsFactory = (options: Partial<NgrxStoreIdbOptions>) => {
 export const idbStoreFactory = (opts: NgrxStoreIdbOptions) => {
   return new Store(opts.idb.dbName, opts.idb.storeName);
 };
+
+export const ngrxStoreIdbServiceInitializer = (opts: NgrxStoreIdbOptions, service: NgrxStoreIdbService) => {
+  return (): Promise<boolean> => {
+    return service.onLockAcquired().toPromise().then(hasLock => new Promise((resolve, reject) => {
+      if (hasLock || !opts.concurrency.failInitialisationIfNoLock) {
+        resolve(true);
+      } else {
+        reject('Can not acquire master lock. Another tab/window is open?');
+      }
+    }));
+  };
+}

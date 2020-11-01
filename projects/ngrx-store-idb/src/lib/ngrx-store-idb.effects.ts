@@ -7,7 +7,9 @@ import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class RehydrateEffects implements OnInitEffects {
 
   // State read from IDB
