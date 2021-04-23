@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Action } from '@ngrx/store';
-import { Store } from 'idb-keyval';
+import { UseStore } from 'idb-keyval';
 
 /**
  * Injection token for injection options
@@ -10,7 +10,7 @@ export const OPTIONS = new InjectionToken<NgrxStoreIdbOptions>('NgrxStoreIdb opt
 /**
  * Injection token for injecting IDB store
  */
-export const IDB_STORE = new InjectionToken<Store>('IDB Store');
+export const IDB_STORE = new InjectionToken<UseStore>('IDB Store');
 
 /**
  * Name of the key in IndexedDB database store under which the state will be saved

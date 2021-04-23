@@ -1,6 +1,6 @@
 import { ActionReducer, INIT, UPDATE } from '@ngrx/store';
 import * as deepmerge from 'deepmerge';
-import { set, Store } from 'idb-keyval';
+import { createStore, set, UseStore } from 'idb-keyval';
 import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
 import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
 import { NgrxStoreIdbService } from './ngrx-store-idb.service';
@@ -133,7 +133,7 @@ const statesAreEqual = (prev: any, next: any): boolean => {
 /**
  * Method used to save actual state into IndexedDB
  */
-const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Store, service: NgrxStoreIdbService) => {
+const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: UseStore, service: NgrxStoreIdbService) => {
   if (!service.canConcurrentlySync()) {
     if (opts.debugInfo) {
       console.debug('NgrxStoreIdb: State will not be persisted. Application runs also in other tab/window.');
@@ -197,7 +197,7 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Sto
  * This is the main factory that creates our metareducer.
  */
 
-export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbStore: Store, service: NgrxStoreIdbService) => {
+export const metaReducerFactoryWithOptions = (options: NgrxStoreIdbOptions, idbStore: UseStore, service: NgrxStoreIdbService) => {
   let rehydratedState = null;
   return (reducer: ActionReducer<any>) => (state: any, action) => {
     let nextState: any;
@@ -286,7 +286,7 @@ export const optionsFactory = (options: Partial<NgrxStoreIdbOptions>) => {
 };
 
 export const idbStoreFactory = (opts: NgrxStoreIdbOptions) => {
-  return new Store(opts.idb.dbName, opts.idb.storeName);
+  return createStore(opts.idb.dbName, opts.idb.storeName);
 };
 
 export const ngrxStoreIdbServiceInitializer = (opts: NgrxStoreIdbOptions, service: NgrxStoreIdbService) => {

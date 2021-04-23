@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
-import { get, set, Store } from 'idb-keyval';
+import { get, set, UseStore } from 'idb-keyval';
 import { EMPTY, from, Observable, ReplaySubject, timer } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS } from './ngrx-store-idb.options';
@@ -39,7 +39,7 @@ export class NgrxStoreIdbService {
 
   constructor(
     @Inject(OPTIONS) private opts: NgrxStoreIdbOptions,
-    @Inject(IDB_STORE) private idbStore: Store,
+    @Inject(IDB_STORE) private idbStore: UseStore,
   ) {
     this.uniqueKey = this.uuidv4();
 
