@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
-import { get, Store } from 'idb-keyval';
+import { get, UseStore } from 'idb-keyval';
 import { from, of } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
@@ -47,7 +47,7 @@ export class RehydrateEffects implements OnInitEffects {
   constructor(
     private actions$: Actions,
     @Inject(OPTIONS) private options: NgrxStoreIdbOptions,
-    @Inject(IDB_STORE) private idbStore: Store,
+    @Inject(IDB_STORE) private idbStore: UseStore,
   ) { }
 
   ngrxOnInitEffects(): Action {
