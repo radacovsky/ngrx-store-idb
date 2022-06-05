@@ -41,7 +41,7 @@ npm install ngrx-store-idb --save
 ```ts
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { NgrxStoreIdbModule } from 'mgrx-store-idb';
+import { NgrxStoreIdbModule } from 'ngrx-store-idb';
 
 @NgModule({
   imports: [
@@ -114,7 +114,7 @@ Subscribe to observable returned by this method to receive information whether c
 
 #### `canConcurrentlySync(): boolean`
 
-Retuns true is current instance has lock or if the concurrency configuration allows concurrent instances to update IndexedDB (`concurrency.allowed = true`).
+Retuns true if current instance has lock or if the concurrency configuration allows concurrent instances to update IndexedDB (`concurrency.allowed = true`).
 
 ### Usage
 
