@@ -43,5 +43,8 @@
         }
       }
     }},
-  "defaultProject": "ngrx-store-idb"
+  "defaultProject": "ngrx-store-idb",
+  "cli": {
+    "analytics": false
+  }
 }
