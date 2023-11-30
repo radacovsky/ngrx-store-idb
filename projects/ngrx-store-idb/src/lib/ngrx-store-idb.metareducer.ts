@@ -2,7 +2,7 @@ import { ActionReducer, INIT, UPDATE } from '@ngrx/store';
 import deepmerge from 'deepmerge';
 import { createStore, set, UseStore } from 'idb-keyval';
 import { rehydrateAction, RehydrateActionPayload, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
-import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY } from './ngrx-store-idb.options';
+import { KeyConfiguration, Keys, NgrxStoreIdbOptions, SAVED_STATE_KEY, SAVED_VERSION_KEY } from './ngrx-store-idb.options';
 import { NgrxStoreIdbService } from './ngrx-store-idb.service';
 
 /**
@@ -28,6 +28,7 @@ export const DEFAULT_OPTS: NgrxStoreIdbOptions = {
   unmarshaller: defaultUnmarshaller,
   marshaller: defaultMarshaller,
   debugInfo: true,
+  version: 0,
   idb: {
     dbName: 'NgrxStoreIdb',
     storeName: 'Store',
@@ -184,6 +185,12 @@ const syncStateUpdate = (state, action, opts: NgrxStoreIdbOptions, idbStore: Use
       if (opts.debugInfo) {
         console.debug('NgrxStoreIdb: Store state persisted to IndexedDB', marshalledState, action);
       }
+
+      return set(SAVED_VERSION_KEY, opts.version, idbStore).then(() => {
+        if (opts.debugInfo) {
+          console.debug('NgrxStoreIdb: Store version persisted to IndexedDb.', opts.version, action);
+        }
+      });
     })
     .catch(err => {
       if (opts.debugInfo) {

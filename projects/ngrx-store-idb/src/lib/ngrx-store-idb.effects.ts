@@ -2,10 +2,10 @@ import { Inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType, OnInitEffects } from '@ngrx/effects';
 import { Action } from '@ngrx/store';
 import { get, UseStore } from 'idb-keyval';
-import { from, of } from 'rxjs';
+import { combineLatest, from, of } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
-import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY } from './ngrx-store-idb.options';
+import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY, SAVED_VERSION_KEY } from './ngrx-store-idb.options';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +27,31 @@ export class RehydrateEffects implements OnInitEffects {
         if (this.options.debugInfo) {
           console.debug('NgrxStoreIdb: Load state from IndexedDB');
         }
-        return from(get(SAVED_STATE_KEY, this.idbStore)).pipe(
+        return combineLatest([from(get(SAVED_STATE_KEY, this.idbStore)), from(get(SAVED_VERSION_KEY, this.idbStore))]).pipe(
+          map(([value, version]) => {
+            if (version === this.options.version || (version === undefined && this.options.version === 0)) {
+              console.debug('NgrxStoreIdb: version matched.');
+              return value;
+            }
+
+            if (this.options.debugInfo) {
+              console.debug('NgrxStoreIdb: Saved state version does not match current version.');
+            }
+
+            if (this.options.migrate) {
+              if (this.options.debugInfo) {
+                console.debug('NgrxStoreIdb: Migrating saved state.');
+              }
+
+              return this.options.migrate(value, version);
+            }
+
+            if (this.options.debugInfo) {
+              console.debug('NgrxStoreIdb: Discard saved state since there is no migration function.');
+            }
+
+            return {};
+          }),
           tap(value => this.rehydratedState = value),
           tap(value => {
             if (this.options.debugInfo) {
