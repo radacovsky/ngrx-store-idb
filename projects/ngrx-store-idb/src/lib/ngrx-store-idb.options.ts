@@ -17,6 +17,11 @@ export const IDB_STORE = new InjectionToken<UseStore>('IDB Store');
  */
 export const SAVED_STATE_KEY = 'State';
 
+/**
+ * Name of the key in IndexedDB database store under which the version will be saved
+ */
+export const SAVED_VERSION_KEY = 'Version';
+
 export interface KeyConfiguration {
   [key: string]: string[] | number[] | KeyConfiguration[];
 }
@@ -71,6 +76,16 @@ export interface NgrxStoreIdbOptions {
    * Can not be used together with keys.
    */
   marshaller: (state: any) => any;
+  /**
+   * If the stored state's version mismatch the one specified here, the storage will not be used.
+   * This is useful when adding a breaking change to your store.
+   */
+  version?: number
+  /**
+   * A function to perform persisted state migration.
+   * This function will be called when persisted state versions mismatch with the one specified here.
+   */
+  migrate?: (persistedState: any, version: number) => any
   /**
    * Print debug info if true
    */
