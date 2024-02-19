@@ -9,7 +9,7 @@ import { NgrxStoreIdbService } from './ngrx-store-idb.service';
 
 /**
  * Import this module in your AppModule using forRoot() method to
- * enable synchornisation of redux store with IndexedDB.
+ * enable synchronisation of redux store with IndexedDB.
  */
 @NgModule({
   declarations: [],
