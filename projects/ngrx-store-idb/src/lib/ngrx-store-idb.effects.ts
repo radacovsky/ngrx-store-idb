@@ -4,8 +4,14 @@ import { Action } from '@ngrx/store';
 import { get, UseStore } from 'idb-keyval';
 import { combineLatest, from, of } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
-import { rehydrateAction, rehydrateErrorAction, rehydrateInitAction } from './ngrx-store-idb.actions';
+import {
+  rehydrateAction,
+  rehydrateDoneAction,
+  rehydrateErrorAction,
+  rehydrateInitAction
+} from './ngrx-store-idb.actions';
 import { IDB_STORE, NgrxStoreIdbOptions, OPTIONS, SAVED_STATE_KEY, SAVED_VERSION_KEY } from './ngrx-store-idb.options';
+import { NgrxStoreIdbService } from './ngrx-store-idb.service';
 
 @Injectable({
   providedIn: 'root',
@@ -58,7 +64,9 @@ export class RehydrateEffects implements OnInitEffects {
               console.debug('NgrxStoreIdb: Loaded state from IndexedDB:', value);
             }
           }),
-          map(value => rehydrateAction({ rehydratedState: value })),
+          map(value => {
+            return rehydrateAction({ rehydratedState: value });
+          }),
           catchError(err => {
             console.error('NgrxStoreIdb: Error reading state from IndexedDB', err);
             return of(rehydrateErrorAction());
@@ -68,10 +76,43 @@ export class RehydrateEffects implements OnInitEffects {
     ),
   );
 
+  /**
+   * This effect is triggered after root store initialisation is successfully completed.
+   * It is used to dispatch sync effect of rehydration done
+   */
+  rehydrateDoneOnRehydrate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(rehydrateAction),
+      map(() => rehydrateDoneAction())
+    ),
+  );
+
+  /**
+   * This effect is triggered after root store initialisation is completed with failure.
+   * It is used to dispatch sync effect of rehydration done
+   */
+  rehydrateDoneOnRehydrateError$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(rehydrateErrorAction),
+      map(() => rehydrateDoneAction())
+    )
+  );
+
+  /**
+   * This effect is triggered after root store initialisation is done to broadcast sync event.
+   */
+  broadcastSyncEventOnRehydrateDone$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(rehydrateDoneAction),
+      tap(() => this.service.broadcastSyncEvent(rehydrateDoneAction, true))
+    ), {dispatch: false}
+  );
+
   constructor(
     private actions$: Actions,
     @Inject(OPTIONS) private options: NgrxStoreIdbOptions,
     @Inject(IDB_STORE) private idbStore: UseStore,
+    private service: NgrxStoreIdbService
   ) { }
 
   ngrxOnInitEffects(): Action {
